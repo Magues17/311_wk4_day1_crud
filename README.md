@@ -1,70 +1,62 @@
-# SQL CRUD
+# My First Web Server
+
+A starter repo for the ACA 311 `Express` project.
 
 ## Setup
 
-* Open MySQL Workbench
+Initialize and run the app: `npm install && npm start`.
 
-* In order to UPDATE/DELETE rows without specifying keys (primary key) we need to disable safe mode in MySQL Workbench
+## Testing the routes
 
-  * In the top bar, select MySQL Workbench -> Preferences
-  * Select "SQL Editor"
-    * _Note: there are three child dropdowns but just select the parent (SQL Editor)_
-  * Scroll to the bottom and deselect the checkbox that says "Safe Updates"
+Use Postman to test the routes created in the following sections. Your base url will be `localhost:4000` (whatever your port number is) and the paths will be the routes defined below. For example, if I wanted to test the users route I would plug in the following information to Postman:
 
-* Once safe mode is disabled you will need to disconnect and reconnect to your db
+* Protocol: GET
+* Request url: http://localhost:4000/users
 
-## Part 1 - Initialize data
+## Part 1: Basic routes
 
-* Make sure you've selected the "admin" database
+* Create the following routes:
 
-* Create a new query tab
-  * Click the button on the top left that has a SQL file with a "plus" icon on it
+  * GET /users
+    * Give your server the ability to respond to a GET request with a path "/users" and return the users array from state.js
+    * Ex. `res.json(users)`
 
-* Click the folder icon in your query tab to open a new file
+  * GET /users/1
+    * Give your server the ability to respond to a GET request with a path "/users/1" and return the first user object from the users array from state.js
 
-* Select the "initialize.sql" script that lives in this repo
+  * POST /users
+    * Give your server the ability to respond to a POST request with a path "/users" and add a hard coded user object to the users array from state.js. Use `res.json()` to send the last user in the array (should be the new one) back to the client.
+    * If you do another GET request you should see this added
+    * You will need to create the hard coded user mentioned above
 
-* Click the lightning bolt icon to run the query
+  * PUT /users/1
+    * Give your server the ability to respond to a PUT request with a path "/users/1" and just change any key value (ex. name, occupation) on the first user object in the users array in state.js. Use `res.json()` to send this user back to the client.
 
-* If you refresh your schemas you should see a "users", "usersContact" and "usersAddress" table
+  * DELETE /users/1
+    * Give your server the ability to respond to a DELETE request with a path "/users/1" and remove the first item from the users array. Use `res.send()` to send back a messsage, "deleted"
 
-## Part 2 - CRUD data
+## Part 2. Body-parser module
 
-We are going to run a couple INSERT/UPDATE/DELETE statements and put our SQL STATEMENTS in the "SQL" section of this README. The SQL instructions are intentionally written in plain english. It's up to you to translate that into the appropriate CRUD operations.
+* Require the `body-parser` module on the line below `require('express')`. (it has already been npm installed)
 
-1. Insert users `('test', 'user')` & `('test2', 'user')` into the users table. Use a SELECT statement to verfiy the existence of the new ids 501 and 502. Record just the INSERT statement in the section below. 
+* Give your server the ability to handle a POST request with a path "/users" and add the data from the client to the users array
 
-2. Pretend we are in the beginnings of an apocalyptic event. It started in Ohio. Update the `usersAddress` table and change every "address" in the state of OH to the text "REDACTED" since Ohio no longer exists. You should update 22 rows. Place this update statement in the section below. 
+  * This means you will be adding `req.body`. Console log this to see what you get and don't forget to send an actual body with the request in Postman
 
-3. Delete the user with the id of `114` from the `users` table.
+  * Assign an _id property to the user object that is a number that increments by 1 each time.
+    * To do this, set a variable called counter near the `{ users }` variable. Start it at the length of the users array
 
-Did the above statement fail? Why? What does the error response say?
+  * Use `res.json()` to send the user object back to the client. (if you do another GET request you should see this added)
 
-We cannot delete this user yet because other tables (usersContact, usersAddress) are children of this table. Remember when we talked about foreign keys in the last lesson? That means we need to delete the appropriate information from those tables before we can delete the user. 
+## Part 3. Use path variables
 
-This should make sense because we can't have user addresses that don't correspond to any user (since the user would have been deleted).
+* Alter the following routes:
 
-Let's delete the appropriate information from `usersContact`, `usersAddress` and finally `users` all corresponding to the user id of 114. Put all three DELETE statments below.
+  * GET /users/1 => GET /users/:userId
+    * Give your server the ability to respond to a GET request with a path `/users/:userId` and return the user object from the users array that has the _id == userId
 
+  * PUT /users/1 => PUT /users/:userId
+    * Give your server the ability to respond to a PUT request with a path `/users/:userId` and just change any key value on the user object with this _id 
 
-## SQL Statements
-
-1. INSERT two users:
-
-
-2. UPDATE all Ohio addresses to "REDACTED":
-
-3. All three DELETES
-
-* DELETE from usersContact
-
-
-* DELETE from usersAddress
-
-
-* DELETE from users
-
-
-## Summary
-
-Make sure we understand these CRUD operations because soon we will be pulling these SQL commands into our Node/Express application.
+  * DELETE /users/1 => DELETE /users/:userId
+    * Give your server the ability to respond to a DELETE request with a path `/users/:userId` and find the user with this id from the array. Give this user object a new key value `isActive: false`. Use `res.send()` to send back a messsage, "deleted"
